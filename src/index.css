@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 英文档衬线标题不加粗（Georgia 常规体，观感接近 policygenius；
+   中文/缅文保持原字重——html[lang] 由 LangProvider 按 language 同步设置） */
+html[lang='en'] .font-serif,
+html[lang='en'] .font-title {
+  font-weight: 400;
+}
+
+/* Leaflet 常显城市标签：去默认气泡框，只留描边文字 */
+.seikcha-city-label {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  font-weight: 700;
+  font-size: 11px;
+  color: #172436;
+  text-shadow:
+    -1px -1px 0 #fff, 1px -1px 0 #fff,
+    -1px 1px 0 #fff, 1px 1px 0 #fff;
+}
+.seikcha-city-label::before {
+  display: none;
+}
+
+/* 改版（2026-10-04）：参照 policygenius.com 引入 Lora（衬线标题）与
+   Urbanist（正文）拉丁字体，自托管离线可用；中文回退系统中文字体。
+   变字重文件（Lora 500-700 / Urbanist 400-700），构建时内联进单文件产物。 */
+@font-face {
+  font-family: 'Lora';
+  src: url('./assets/fonts/lora-latin.woff2') format('woff2');
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Urbanist';
+  src: url('./assets/fonts/urbanist-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
