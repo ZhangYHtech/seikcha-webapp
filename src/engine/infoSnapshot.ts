@@ -176,12 +176,22 @@ async function loadInfoDayStrict(date: string): Promise<InfoDay | null> {
 }
 
 /**
+ * 走势图取材起始日 = 首个真实抓取日。
+ * 2026-10-03 是管道上线首日的初始化跑批：当天 8 条走廊 fr03 全部落“段基准”默认档，
+ * Open-Meteo / GDELT 多项抓取失败，与 10-04 起的真实抓取结果差异过大；画进走势图会
+ * 造成误导性断崖，故自 10-04 起取材（既不画点、也不发请求）。
+ * 若管道日后回溯补齐 10-03 的真实数据，把此日期前移即可恢复该点。
+ */
+const HISTORY_VALID_FROM = '2026-10-04';
+
+/**
  * 近 N 天（业务日期，含今日）已存档的每日快照，按日期升序——供费率走势图逐日重算。
  * 历史日期只认日期寻址文件，缺失日自动跳过；今日与主加载共用同一结果（带 latest 兜底）。
  * 同一业务日期去重，x 轴用快照自带的业务日期（latest 滞后时数据日期仍诚实）。
+ * 管道初始化日（HISTORY_VALID_FROM 之前）不参与，见该常量说明。
  */
 export async function loadInfoHistory(days = 30): Promise<InfoDay[]> {
-  const dates = lastNDates(todayStr(), days);
+  const dates = lastNDates(todayStr(), days).filter((d) => d >= HISTORY_VALID_FROM);
   const today = await loadInfoDay(todayStr());
   const available = await fetchAvailableSnapshotDates();
   // jsDelivr 文件清单可能严重滞后（实测滞后 10 天以上：10-15 时清单只索引到
