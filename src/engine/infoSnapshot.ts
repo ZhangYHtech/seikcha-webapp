@@ -184,13 +184,13 @@ export async function loadInfoHistory(days = 30): Promise<InfoDay[]> {
   const dates = lastNDates(todayStr(), days);
   const today = await loadInfoDay(todayStr());
   const available = await fetchAvailableSnapshotDates();
-  // jsDelivr 的文件清单有缓存滞后：最新一两天的存档可能不在清单里
-  // （实测 10-05 已存在但清单未收录，导致走势图漏点）。因此最近 3 天
-  // 一律绕过清单直连探测——存在文件响应毫秒级，只有真缺失才吃慢 404。
-  const recent = new Set(dates.slice(-3));
-  const candidates = available
-    ? dates.filter((d) => available.has(d) || recent.has(d))
-    : dates;
+  // jsDelivr 文件清单可能严重滞后（实测滞后 10 天以上：10-15 时清单只索引到
+  // 10-04，导致 10-05~10-12 明明有存档却被过滤）。因此：清单里"最新已知日期"
+  // 之后的日子一律直连探测——管道每日发布，这些日期大概率存在（毫秒级 200），
+  // 只有真缺失才吃慢 404；清单覆盖到的旧日期仍按清单取舍（省掉管线启动前
+  // 一批注定 404 的慢探测）。
+  const maxListed = available ? [...available].reduce((a, b) => (b > a ? b : a), '') : '';
+  const candidates = dates.filter((d) => !available || available.has(d) || d > maxListed);
   const first = await Promise.all(candidates.map((d) => loadInfoDayStrict(d)));
   // 清单内候选抓取失败（瞬断/限流）→ 再补试两轮
   if (available) {
