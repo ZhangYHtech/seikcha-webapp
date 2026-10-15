@@ -1,10 +1,14 @@
 // ============================================================
 // 假设披露 / 页脚（T101 · W1）——红线4：固定披露三项缺一不可（多语言）
+// "快照条件费率"的日期与每日快照同源动态更新：今天已发布→今天，
+// 未发布→latest.json 的真实业务日期（通常=昨天）；见 lib/useSnapshotDate.ts。
 // ============================================================
 import { useT } from '../i18n';
+import { useSnapshotDate } from '../lib/useSnapshotDate';
 
 export function FooterDisclosure() {
   const t = useT();
+  const snapDate = useSnapshotDate();
   return (
     <footer id="disclosure" className="scroll-mt-16 bg-pg-navy text-pg-cream/80">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
@@ -12,7 +16,7 @@ export function FooterDisclosure() {
         <ol className="mt-4 grid gap-3 text-sm leading-relaxed md:grid-cols-3">
           <li className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
             <span className="font-semibold text-seik-300">{t('footer.c1t')}：</span>
-            {t('footer.c1b')}
+            {t('footer.c1b', { date: snapDate })}
           </li>
           <li className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
             <span className="font-semibold text-seik-300">{t('footer.c2t')}：</span>

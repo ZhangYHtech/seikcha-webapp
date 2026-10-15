@@ -5,12 +5,14 @@
 // ============================================================
 import { useState } from 'react';
 import { useT } from '../i18n';
+import { useSnapshotDate } from '../lib/useSnapshotDate';
 
 // 8 问，文案键见 i18n/index.tsx（faq.q1..q8 / faq.a1..a8）
 const FAQ_KEYS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
 
 export function FaqSection() {
   const t = useT();
+  const snapDate = useSnapshotDate(); // a6 引用的快照日期与页脚同源动态更新
   // 默认展开第一项；允许多项同时展开
   const [open, setOpen] = useState<Set<number>>(() => new Set([0]));
   const toggle = (i: number) =>
@@ -54,7 +56,7 @@ export function FaqSection() {
                 >
                   <div className="overflow-hidden">
                     <p className="px-5 pb-5 text-sm leading-relaxed text-slate-700 sm:px-8 sm:pb-6 sm:text-[15px]">
-                      {t(`faq.a${n}`)}
+                      {t(`faq.a${n}`, n === 6 ? { date: snapDate } : undefined)}
                     </p>
                   </div>
                 </div>
